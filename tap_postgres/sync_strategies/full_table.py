@@ -126,6 +126,29 @@ def sync_table(conn_info, stream, state, desired_columns, md_map):
 
                 fq_table_name = post_db.fully_qualified_table_name(schema_name, stream['table_name'])
                 xmin = singer.get_bookmark(state, stream['tap_stream_id'], 'xmin')
+
+                if conn_info['resync_with_commit_timestamp']
+                    if xmin: 
+                        LOGGER.info("Resuming Full Table replication %s from commit timestamp %s", nascent_stream_version, xmin)
+                        select_sql = """
+                                    SELECT 
+                                        pg_xact_commit_timestamp(xmin) as commit_timestamp,
+                                        xmin 
+                                    FROM {}
+                                    WHERE commit_timestamp >= {}
+                                    ORDER BY commit_timestamp asc""".format(','.join(escaped_columns),
+                                                                            fq_table_name,
+                                                                            xmin)
+                    else: 
+                        LOGGER.info("Beginning new Full Table replication %s", nascent_stream_version)
+                        select_sql = """
+                                    SELECT 
+                                        pg_xact_commit_timestamp(xmin) as commit_timestamp,
+                                        xmin 
+                                    FROM {}
+                                    ORDER BY commit_timestamp asc""".format(','.join(escaped_columns),
+                                                                            fq_table_name,
+                                                                            xmin)
                 if xmin:
                     LOGGER.info("Resuming Full Table replication %s from xmin %s", nascent_stream_version, xmin)
                     select_sql = """SELECT {}, xmin::text::bigint

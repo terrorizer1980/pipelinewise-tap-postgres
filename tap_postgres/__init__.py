@@ -416,6 +416,7 @@ def main_impl():
         'break_at_end_lsn': args.config.get('break_at_end_lsn', True),
         'logical_poll_total_seconds': float(args.config.get('logical_poll_total_seconds', 0)),
         'use_replica': args.config.get('use_replica', False),
+        'resync_with_commit_timestamp': args.config.get('resync_with_commit_timestamp', False),
     }
 
     if conn_config['use_replica']:
